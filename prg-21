@@ -1,0 +1,77 @@
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+
+# Function to pad the plaintext
+def pad(data):
+    padding_length = AES.block_size - len(data) % AES.block_size
+    return data + bytes([padding_length] * padding_length)
+
+# Function to encrypt plaintext in ECB mode
+def encrypt_ecb(plaintext, key):
+    cipher = AES.new(key, AES.MODE_ECB)
+    ciphertext = cipher.encrypt(pad(plaintext))
+    return ciphertext
+
+# Function to decrypt ciphertext in ECB mode
+def decrypt_ecb(ciphertext, key):
+    cipher = AES.new(key, AES.MODE_ECB)
+    decrypted_data = cipher.decrypt(ciphertext)
+    padding_length = decrypted_data[-1]
+    return decrypted_data[:-padding_length]
+
+# Function to encrypt plaintext in CBC mode
+def encrypt_cbc(plaintext, key, iv):
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    ciphertext = cipher.encrypt(pad(plaintext))
+    return ciphertext
+
+# Function to decrypt ciphertext in CBC mode
+def decrypt_cbc(ciphertext, key, iv):
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    decrypted_data = cipher.decrypt(ciphertext)
+    padding_length = decrypted_data[-1]
+    return decrypted_data[:-padding_length]
+
+# Function to encrypt plaintext in CFB mode
+def encrypt_cfb(plaintext, key, iv):
+    cipher = AES.new(key, AES.MODE_CFB, iv, segment_size=AES.block_size * 8)
+    ciphertext = cipher.encrypt(pad(plaintext))
+    return ciphertext
+
+# Function to decrypt ciphertext in CFB mode
+def decrypt_cfb(ciphertext, key, iv):
+    cipher = AES.new(key, AES.MODE_CFB, iv, segment_size=AES.block_size * 8)
+    decrypted_data = cipher.decrypt(ciphertext)
+    padding_length = decrypted_data[-1]
+    return decrypted_data[:-padding_length]
+
+# Generate random key and IV
+key = get_random_bytes(AES.block_size)
+iv = get_random_bytes(AES.block_size)
+
+# Example usage
+plaintext = b"This is a secret message."
+
+# ECB mode
+ciphertext_ecb = encrypt_ecb(plaintext, key)
+decrypted_ecb = decrypt_ecb(ciphertext_ecb, key)
+print("ECB mode:")
+print("Original plaintext:", plaintext)
+print("Ciphertext:", ciphertext_ecb.hex())
+print("Decrypted plaintext:", decrypted_ecb)
+
+# CBC mode
+ciphertext_cbc = encrypt_cbc(plaintext, key, iv)
+decrypted_cbc = decrypt_cbc(ciphertext_cbc, key, iv)
+print("\nCBC mode:")
+print("Original plaintext:", plaintext)
+print("Ciphertext:", ciphertext_cbc.hex())
+print("Decrypted plaintext:", decrypted_cbc)
+
+# CFB mode
+ciphertext_cfb = encrypt_cfb(plaintext, key, iv)
+decrypted_cfb = decrypt_cfb(ciphertext_cfb, key, iv)
+print("\nCFB mode:")
+print("Original plaintext:", plaintext)
+print("Ciphertext:", ciphertext_cfb.hex())
+print("Decrypted plaintext:", decrypted_cfb)
